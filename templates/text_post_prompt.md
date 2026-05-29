@@ -28,9 +28,34 @@ Formatting rules:
 - Do not use markdown headings such as #, ##, or ###.
 - Do not use bold markdown such as **text**.
 - Use natural line breaks and short paragraphs.
-- Use relevant symbols or emojis where they add clarity, such as 🔎, ⚙️, 📦,
-  📊, ✅, ⚠️, or →.
+- Use 4 to 7 relevant symbols or emojis where they add clarity, such as 🔎,
+  ⚙️, 📦, 📊, ✅, ⚠️, 💡, or →.
 - Keep emojis purposeful and not excessive.
+
+Use this structure:
+
+🔎 [strong opening observation]
+
+The problem:
+[2 to 3 lines explaining the operational or supply chain problem]
+
+What I am exploring:
+→ [practical AI angle]
+→ [where it fits in the workflow]
+→ [why human review still matters]
+
+Example:
+[concrete supply chain or operations example]
+
+What this made me think:
+[realistic reflection]
+
+[soft question]
+
+[5 to 7 hashtags]
+
+Image prompt:
+[one short practical image prompt]
 
 The post must include:
 
@@ -41,11 +66,6 @@ The post must include:
 - A concrete operational example
 - A realistic reflection or soft question
 - 5 to 7 relevant hashtags
-
-After the hashtags, include:
-
-Image prompt:
-[one short practical image prompt]
 
 ## Guardrails
 

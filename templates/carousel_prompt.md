@@ -31,14 +31,23 @@ Formatting rules:
 - Use clear labels such as "Caption:", "Carousel title:", and "Slide 1:".
 - Use natural line breaks and short bullet points.
 - Use relevant symbols or emojis where useful, such as 📦, 📊, ⚙️, 🔎, ✅,
-  ⚠️, or →.
+  ⚠️, 💡, or →.
 - Keep emojis purposeful and not excessive.
 
 Structure:
 
-1. A LinkedIn caption with 5 to 7 relevant hashtags.
-2. A carousel title.
-3. 6 to 8 slides.
+Caption:
+[LinkedIn caption with 5 to 7 relevant hashtags]
+
+Carousel title:
+[clear title]
+
+Slide 1: [title]
+- [short point]
+- [short point]
+- Takeaway: [practical takeaway]
+
+Continue through 6 to 8 slides.
 
 For each slide, include:
 

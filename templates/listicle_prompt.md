@@ -29,14 +29,22 @@ Formatting rules:
 - Do not use bold markdown such as **text**.
 - Use natural line breaks and short paragraphs.
 - Use relevant symbols or emojis where useful, such as 📦, 📊, ⚙️, 🔎, ✅,
-  ⚠️, or →.
+  ⚠️, 💡, or →.
 - Keep emojis purposeful and not excessive.
 
 Structure:
 
-1. A LinkedIn caption with 5 to 7 relevant hashtags.
-2. A clear listicle title.
-3. 5 to 7 numbered points.
+Caption:
+[LinkedIn caption with 5 to 7 relevant hashtags]
+
+Listicle title:
+[clear title]
+
+1. [point heading]
+→ [practical explanation]
+→ [business or supply chain relevance]
+
+Continue through 5 to 7 points.
 
 For each point, include:
 

@@ -52,6 +52,35 @@ def show_loaded_files(knowledge_base: KnowledgeBase) -> None:
         st.write(secondary_names)
 
 
+def render_post_preview(content: str) -> None:
+    if not content.strip():
+        st.info("Generated content will appear here.")
+        return
+
+    st.markdown(content.replace("\n", "  \n"))
+
+
+def parse_markdown_table(markdown_text: str) -> list[dict[str, str]]:
+    table_lines = [
+        line.strip()
+        for line in markdown_text.splitlines()
+        if line.strip().startswith("|") and line.strip().endswith("|")
+    ]
+    if len(table_lines) < 3:
+        return []
+
+    headers = [cell.strip() for cell in table_lines[0].strip("|").split("|")]
+    rows: list[dict[str, str]] = []
+
+    for line in table_lines[2:]:
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != len(headers):
+            continue
+        rows.append(dict(zip(headers, cells, strict=False)))
+
+    return rows
+
+
 @st.dialog("Uniqueness Evidence")
 def show_uniqueness_dialog(knowledge_base: KnowledgeBase) -> None:
     st.caption("Compare a generic baseline with the current app-generated output.")
@@ -86,12 +115,19 @@ def show_uniqueness_dialog(knowledge_base: KnowledgeBase) -> None:
         else:
             st.session_state.uniqueness_comparison = comparison
 
-    st.text_area(
-        "Structured comparison",
-        height=260,
-        placeholder="Comparison table will appear here.",
-        key="uniqueness_comparison",
-    )
+    comparison_rows = parse_markdown_table(st.session_state.uniqueness_comparison)
+    if comparison_rows:
+        st.table(comparison_rows)
+    elif st.session_state.uniqueness_comparison:
+        st.warning("The comparison did not include a readable table.")
+
+    with st.expander("Raw comparison text", expanded=not comparison_rows):
+        st.text_area(
+            "Structured comparison",
+            height=260,
+            placeholder="Comparison table will appear here.",
+            key="uniqueness_comparison",
+        )
 
     if st.button("Save Comparison"):
         try:
@@ -226,12 +262,14 @@ def main() -> None:
 
     with right_column:
         st.subheader("Generated Post")
+        with st.container(border=True):
+            render_post_preview(st.session_state.generated_content)
+
         st.text_area(
-            "LinkedIn-ready output",
+            "Copy-ready text",
             height=720,
             placeholder="Generated content will appear here.",
             key="generated_content",
-            label_visibility="collapsed",
         )
 
 

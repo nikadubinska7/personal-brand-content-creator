@@ -44,4 +44,8 @@ Use this table structure:
 | Metric | Generic output | App output | Stronger output | Notes |
 |---|---|---|---|---|
 
+Return the table as a valid markdown table with one row per metric.
+Do not merge cells. Do not put line breaks inside table cells.
+Do not use pipe characters inside table cell text.
+
 Keep the analysis practical, specific, and business-focused.
