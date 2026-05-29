@@ -59,7 +59,7 @@ def parse_generated_ideas(generated_ideas: str, limit: int = 5) -> list[str]:
                 else len(cleaned_ideas)
             )
             block = cleaned_ideas[start:end].strip(" \n-")
-            if block:
+            if block and idea_label(block):
                 blocks.append(block)
         return blocks[:limit]
 
@@ -69,7 +69,20 @@ def parse_generated_ideas(generated_ideas: str, limit: int = 5) -> list[str]:
         if block.strip()
     ]
 
-    return blocks[:limit]
+    return [block for block in blocks if idea_label(block)][:limit]
+
+
+def idea_label(idea: str, max_length: int = 140) -> str:
+    """Return a clean one-line label for a generated idea block."""
+    for line in idea.splitlines():
+        compact_line = " ".join(line.strip(" -").split())
+        if compact_line:
+            return (
+                compact_line
+                if len(compact_line) <= max_length
+                else f"{compact_line[: max_length - 3].rstrip()}..."
+            )
+    return ""
 
 
 def build_content_generation_prompt(

@@ -7,6 +7,7 @@ try:
         generate_content,
         generate_post_ideas,
         generate_uniqueness_comparison,
+        idea_label,
         parse_generated_ideas,
     )
     from .document_processor import DocumentProcessingError
@@ -21,6 +22,7 @@ except ImportError:
         generate_content,
         generate_post_ideas,
         generate_uniqueness_comparison,
+        idea_label,
         parse_generated_ideas,
     )
     from document_processor import DocumentProcessingError
@@ -48,17 +50,6 @@ def show_loaded_files(knowledge_base: KnowledgeBase) -> None:
     with col_secondary:
         st.metric("Secondary files", len(secondary_names))
         st.write(secondary_names)
-
-
-def format_idea_label(idea: str) -> str:
-    first_line = next(
-        (line.strip() for line in idea.splitlines() if line.strip()),
-        idea,
-    )
-    compact_idea = " ".join(first_line.split())
-    if len(compact_idea) <= 140:
-        return compact_idea
-    return f"{compact_idea[:137].rstrip()}..."
 
 
 @st.dialog("Uniqueness Evidence")
@@ -160,13 +151,18 @@ def main() -> None:
 
         ideas = parse_generated_ideas(st.session_state.generated_ideas)
         if ideas:
-            selected_idea = st.radio(
+            idea_options = list(range(len(ideas)))
+            selected_idea_index = st.radio(
                 "Select an idea",
-                options=ideas,
-                format_func=format_idea_label,
+                options=idea_options,
+                format_func=lambda index: idea_label(ideas[index]),
                 key="selected_idea_choice",
             )
+            selected_idea = ideas[selected_idea_index]
             st.session_state.selected_idea = selected_idea
+
+            with st.expander("Selected idea details", expanded=False):
+                st.write(selected_idea)
         else:
             selected_idea = ""
             st.info("Generate ideas to choose one for content creation.")
