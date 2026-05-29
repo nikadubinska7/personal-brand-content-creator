@@ -51,7 +51,11 @@ def show_loaded_files(knowledge_base: KnowledgeBase) -> None:
 
 
 def format_idea_label(idea: str) -> str:
-    compact_idea = " ".join(idea.split())
+    first_line = next(
+        (line.strip() for line in idea.splitlines() if line.strip()),
+        idea,
+    )
+    compact_idea = " ".join(first_line.split())
     if len(compact_idea) <= 140:
         return compact_idea
     return f"{compact_idea[:137].rstrip()}..."

@@ -1,4 +1,4 @@
-from re import split
+from re import finditer, split
 from typing import Literal
 
 try:
@@ -42,24 +42,32 @@ def generate_post_ideas(knowledge_base: KnowledgeBase) -> str:
 
 def parse_generated_ideas(generated_ideas: str, limit: int = 5) -> list[str]:
     """Split generated idea text into selectable idea blocks."""
-    if not generated_ideas.strip():
+    cleaned_ideas = generated_ideas.strip()
+    if not cleaned_ideas:
         return []
+
+    idea_heading_pattern = r"(?im)^\s*(?:#{1,4}\s*)?(?:(?:Post\s+)?Idea\s*\d+|\d+[\.\)])\s*[:\.\)-]?\s+.*$"
+    heading_matches = list(finditer(idea_heading_pattern, cleaned_ideas))
+
+    if heading_matches:
+        blocks = []
+        for index, match in enumerate(heading_matches):
+            start = match.start()
+            end = (
+                heading_matches[index + 1].start()
+                if index + 1 < len(heading_matches)
+                else len(cleaned_ideas)
+            )
+            block = cleaned_ideas[start:end].strip(" \n-")
+            if block:
+                blocks.append(block)
+        return blocks[:limit]
 
     blocks = [
         block.strip(" \n-")
-        for block in split(
-            r"(?m)(?=^\s*(?:\d+[\.\)]|(?:Post\s+)?Idea\s+\d+[:\.\)]))",
-            generated_ideas,
-        )
+        for block in split(r"\n\s*\n", cleaned_ideas)
         if block.strip()
     ]
-
-    if len(blocks) < 2:
-        blocks = [
-            line.strip(" \n-")
-            for line in generated_ideas.splitlines()
-            if line.strip()
-        ]
 
     return blocks[:limit]
 

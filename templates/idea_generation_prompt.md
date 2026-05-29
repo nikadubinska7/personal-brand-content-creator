@@ -19,6 +19,22 @@ Use the secondary context as supporting business and industry context.
 
 Generate exactly 5 LinkedIn post ideas.
 
+Return only the 5 ideas. Do not add an introduction or closing note.
+
+Use this exact structure for each idea:
+
+Post Idea 1: [short working title]
+Business Problem: [the business or supply chain problem behind the idea]
+Practical AI Angle: [the practical AI angle]
+Why This Fits: [why this fits the author's current positioning]
+
+Post Idea 2: [short working title]
+Business Problem: ...
+Practical AI Angle: ...
+Why This Fits: ...
+
+Continue the same structure through Post Idea 5.
+
 Each idea must include:
 
 - A short working title
