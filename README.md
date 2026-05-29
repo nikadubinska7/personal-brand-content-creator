@@ -30,3 +30,20 @@ python src/main.py --generate-ideas
 
 You can optionally set `LLM_MODEL` in `.env`. If not set, the app uses
 `gpt-4o-mini`.
+
+## Build A Content Prompt
+
+After selecting an idea, preview a format-specific prompt without calling the
+API:
+
+```bash
+python src/main.py --format text --idea "AI can reduce manual follow-up work in supplier communication"
+```
+
+Supported formats are `text`, `carousel`, and `listicle`.
+
+To generate the selected content with OpenAI, add `--generate-content`:
+
+```bash
+python src/main.py --format carousel --idea "AI can support logistics exception management" --generate-content
+```

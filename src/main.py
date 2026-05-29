@@ -1,13 +1,23 @@
 import argparse
 
 try:
-    from .content_pipeline import build_idea_generation_prompt, generate_post_ideas
+    from .content_pipeline import (
+        build_content_generation_prompt,
+        build_idea_generation_prompt,
+        generate_content,
+        generate_post_ideas,
+    )
     from .document_processor import DocumentProcessingError
     from .knowledge_base import load_knowledge_base
     from .llm_integration import LLMIntegrationError
     from .prompt_templates import PromptTemplateError
 except ImportError:
-    from content_pipeline import build_idea_generation_prompt, generate_post_ideas
+    from content_pipeline import (
+        build_content_generation_prompt,
+        build_idea_generation_prompt,
+        generate_content,
+        generate_post_ideas,
+    )
     from document_processor import DocumentProcessingError
     from knowledge_base import load_knowledge_base
     from llm_integration import LLMIntegrationError
@@ -39,6 +49,20 @@ def parse_args() -> argparse.Namespace:
         "--generate-ideas",
         action="store_true",
         help="Call the OpenAI API to generate 5 LinkedIn post ideas.",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "carousel", "listicle"],
+        help="Content format to build or generate.",
+    )
+    parser.add_argument(
+        "--idea",
+        help="Selected content idea to use for format-specific content generation.",
+    )
+    parser.add_argument(
+        "--generate-content",
+        action="store_true",
+        help="Call the OpenAI API to generate content for --idea and --format.",
     )
     return parser.parse_args()
 
@@ -80,8 +104,44 @@ def main() -> None:
     print("\nIdea generation prompt preview:")
     print(build_preview(idea_prompt))
 
+    if args.format or args.idea or args.generate_content:
+        if not args.format or not args.idea:
+            print("\nContent prompt skipped. Provide both --format and --idea.")
+            raise SystemExit(1)
+
+        try:
+            content_prompt = build_content_generation_prompt(
+                knowledge_base=knowledge_base,
+                selected_idea=args.idea,
+                content_format=args.format,
+            )
+        except (PromptTemplateError, ValueError) as error:
+            print(f"\nContent prompt error: {error}")
+            raise SystemExit(1) from error
+
+        print(f"\n{args.format.title()} content prompt preview:")
+        print(build_preview(content_prompt))
+
+        if args.generate_content:
+            try:
+                content = generate_content(
+                    knowledge_base=knowledge_base,
+                    selected_idea=args.idea,
+                    content_format=args.format,
+                )
+            except LLMIntegrationError as error:
+                print(f"\nContent generation error: {error}")
+                raise SystemExit(1) from error
+
+            print(f"\nGenerated {args.format} content:")
+            print(content)
+            return
+
+        print("\nContent generation skipped. Add --generate-content to call OpenAI.")
+
     if not args.generate_ideas:
-        print("\nIdea generation skipped. Run with --generate-ideas to call OpenAI.")
+        if not args.format and not args.idea and not args.generate_content:
+            print("\nIdea generation skipped. Run with --generate-ideas to call OpenAI.")
         return
 
     try:
