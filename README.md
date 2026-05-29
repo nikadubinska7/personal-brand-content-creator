@@ -17,4 +17,5 @@ The command loads markdown files from:
 - `knowledge_base/secondary/`
 
 It prints the number of files loaded, the file names, and a short preview of the
-combined context. This step does not call the OpenAI API.
+combined context. It also builds a reusable idea-generation prompt preview from
+the markdown context. This step does not call the OpenAI API.

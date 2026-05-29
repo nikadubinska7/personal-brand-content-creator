@@ -1,9 +1,13 @@
 try:
+    from .content_pipeline import build_idea_generation_prompt
     from .document_processor import DocumentProcessingError
     from .knowledge_base import load_knowledge_base
+    from .prompt_templates import PromptTemplateError
 except ImportError:
+    from content_pipeline import build_idea_generation_prompt
     from document_processor import DocumentProcessingError
     from knowledge_base import load_knowledge_base
+    from prompt_templates import PromptTemplateError
 
 
 PREVIEW_LENGTH = 500
@@ -48,6 +52,15 @@ def main() -> None:
 
     print("\nCombined context preview:")
     print(build_preview(knowledge_base.combined_context))
+
+    try:
+        idea_prompt = build_idea_generation_prompt(knowledge_base)
+    except PromptTemplateError as error:
+        print(f"\nPrompt template error: {error}")
+        raise SystemExit(1) from error
+
+    print("\nIdea generation prompt preview:")
+    print(build_preview(idea_prompt))
 
 
 if __name__ == "__main__":
