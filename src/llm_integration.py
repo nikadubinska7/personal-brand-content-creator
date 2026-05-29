@@ -1,33 +1,53 @@
 import os
+from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values, load_dotenv
 from openai import OpenAI, OpenAIError
 
 
 DEFAULT_MODEL = "gpt-4o-mini"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+ENV_FILE = PROJECT_ROOT / ".env"
+API_KEY_PLACEHOLDER = "your_api_key_here"
 
 
 class LLMIntegrationError(Exception):
     """Raised when the LLM request cannot be completed clearly."""
 
 
+def load_project_env() -> None:
+    """Load environment variables from the project .env file."""
+    load_dotenv(dotenv_path=ENV_FILE)
+
+
+def get_api_key() -> str:
+    """Read OPENAI_API_KEY, falling back to .env if the shell has a placeholder."""
+    load_project_env()
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if api_key and api_key != API_KEY_PLACEHOLDER:
+        return api_key
+
+    env_values = dotenv_values(ENV_FILE) if ENV_FILE.exists() else {}
+    file_api_key = env_values.get("OPENAI_API_KEY")
+
+    if file_api_key and file_api_key != API_KEY_PLACEHOLDER:
+        return file_api_key
+
+    raise LLMIntegrationError(
+        f"OPENAI_API_KEY is missing. Add it to {ENV_FILE} before generating ideas."
+    )
+
+
 def get_model_name() -> str:
     """Read the model name from the environment with a small local default."""
-    load_dotenv()
+    load_project_env()
     return os.getenv("LLM_MODEL", DEFAULT_MODEL)
 
 
 def get_openai_client() -> OpenAI:
     """Create an OpenAI client using OPENAI_API_KEY from the environment."""
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
-
-    if not api_key or api_key == "your_api_key_here":
-        raise LLMIntegrationError(
-            "OPENAI_API_KEY is missing. Add it to .env before generating ideas."
-        )
-
-    return OpenAI(api_key=api_key)
+    return OpenAI(api_key=get_api_key())
 
 
 def generate_text(prompt: str, model: str | None = None) -> str:
