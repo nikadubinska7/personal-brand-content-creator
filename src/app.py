@@ -3,8 +3,10 @@ import streamlit as st
 try:
     from .content_pipeline import (
         build_content_generation_prompt,
+        build_uniqueness_comparison_prompt,
         generate_content,
         generate_post_ideas,
+        generate_uniqueness_comparison,
     )
     from .document_processor import DocumentProcessingError
     from .knowledge_base import KnowledgeBase, load_knowledge_base
@@ -15,8 +17,10 @@ try:
 except ImportError:
     from content_pipeline import (
         build_content_generation_prompt,
+        build_uniqueness_comparison_prompt,
         generate_content,
         generate_post_ideas,
+        generate_uniqueness_comparison,
     )
     from document_processor import DocumentProcessingError
     from knowledge_base import KnowledgeBase, load_knowledge_base
@@ -76,6 +80,10 @@ def main() -> None:
         st.session_state.saved_output_path = ""
     if "saved_pdf_path" not in st.session_state:
         st.session_state.saved_pdf_path = ""
+    if "generic_output" not in st.session_state:
+        st.session_state.generic_output = ""
+    if "uniqueness_comparison" not in st.session_state:
+        st.session_state.uniqueness_comparison = ""
 
     if st.button("Generate 5 Ideas", type="primary"):
         try:
@@ -179,6 +187,63 @@ def main() -> None:
 
     if st.session_state.saved_pdf_path:
         st.success(f"Saved PDF: {st.session_state.saved_pdf_path}")
+
+    st.divider()
+    st.subheader("4. Uniqueness Evidence")
+    st.text_area(
+        "Generic output",
+        height=180,
+        placeholder="Paste a generic ChatGPT-style output here.",
+        key="generic_output",
+    )
+
+    col_preview_unique, col_generate_unique = st.columns(2)
+    with col_preview_unique:
+        preview_uniqueness_clicked = st.button("Preview Comparison Prompt")
+    with col_generate_unique:
+        generate_uniqueness_clicked = st.button("Generate Comparison")
+
+    if preview_uniqueness_clicked:
+        try:
+            comparison_prompt = build_uniqueness_comparison_prompt(
+                knowledge_base=knowledge_base,
+                generic_output=st.session_state.generic_output,
+                app_output=st.session_state.generated_content,
+            )
+        except (PromptTemplateError, ValueError) as error:
+            st.error(str(error))
+        else:
+            st.text_area("Comparison prompt preview", value=comparison_prompt, height=280)
+
+    if generate_uniqueness_clicked:
+        try:
+            comparison = generate_uniqueness_comparison(
+                knowledge_base=knowledge_base,
+                generic_output=st.session_state.generic_output,
+                app_output=st.session_state.generated_content,
+            )
+        except (LLMIntegrationError, PromptTemplateError, ValueError) as error:
+            st.error(str(error))
+        else:
+            st.session_state.uniqueness_comparison = comparison
+
+    st.text_area(
+        "Uniqueness comparison",
+        height=260,
+        placeholder="Comparison evidence will appear here.",
+        key="uniqueness_comparison",
+    )
+
+    if st.button("Save Comparison"):
+        try:
+            file_path = save_markdown_output(
+                content=st.session_state.uniqueness_comparison,
+                output_type="uniqueness-comparison",
+            )
+        except OutputSaveError as error:
+            st.error(str(error))
+        else:
+            st.success(f"Saved comparison: {file_path}")
 
 
 if __name__ == "__main__":

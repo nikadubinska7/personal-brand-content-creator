@@ -61,6 +61,17 @@ For carousel or listicle content, add `--save-pdf` to export a readable PDF:
 python src/main.py --format listicle --idea "AI can support weekly reporting" --generate-content --save-output --save-pdf
 ```
 
+## Uniqueness Evidence
+
+Preview a comparison prompt by providing a generic baseline and app output:
+
+```bash
+python src/main.py --generic-output "Generic AI post text" --app-output "Knowledge-base app post text"
+```
+
+Add `--generate-uniqueness` to call OpenAI and create comparison evidence for
+project documentation. Add `--save-output` to save the comparison as markdown.
+
 ## Streamlit App
 
 Run the local app from the project root:
@@ -72,4 +83,5 @@ streamlit run src/app.py
 The app loads both knowledge bases, can generate 5 ideas, lets you paste a
 selected idea, choose `text`, `carousel`, or `listicle`, and generate copy-ready
 content for review. Generated content can be saved as markdown in `outputs/`,
-and carousel/listicle content can also be exported as PDF.
+and carousel/listicle content can also be exported as PDF. The app also supports
+a basic uniqueness comparison between generic output and app-generated output.

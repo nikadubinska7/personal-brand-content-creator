@@ -11,6 +11,7 @@ except ImportError:
 
 
 IDEA_GENERATION_TEMPLATE = "idea_generation_prompt.md"
+UNIQUENESS_COMPARISON_TEMPLATE = "uniqueness_comparison_prompt.md"
 ContentFormat = Literal["text", "carousel", "listicle"]
 
 CONTENT_TEMPLATES: dict[ContentFormat, str] = {
@@ -68,5 +69,42 @@ def generate_content(
         knowledge_base=knowledge_base,
         selected_idea=selected_idea,
         content_format=content_format,
+    )
+    return generate_text(prompt)
+
+
+def build_uniqueness_comparison_prompt(
+    knowledge_base: KnowledgeBase,
+    generic_output: str,
+    app_output: str,
+) -> str:
+    """Build a prompt that compares generic output with app-generated output."""
+    if not generic_output.strip():
+        raise ValueError("Generic output is required for uniqueness comparison.")
+    if not app_output.strip():
+        raise ValueError("App output is required for uniqueness comparison.")
+
+    template = load_prompt_template(UNIQUENESS_COMPARISON_TEMPLATE)
+    return render_prompt_template(
+        template,
+        {
+            "primary_context": knowledge_base.primary_context,
+            "secondary_context": knowledge_base.secondary_context,
+            "generic_output": generic_output.strip(),
+            "app_output": app_output.strip(),
+        },
+    )
+
+
+def generate_uniqueness_comparison(
+    knowledge_base: KnowledgeBase,
+    generic_output: str,
+    app_output: str,
+) -> str:
+    """Generate written uniqueness evidence for project documentation."""
+    prompt = build_uniqueness_comparison_prompt(
+        knowledge_base=knowledge_base,
+        generic_output=generic_output,
+        app_output=app_output,
     )
     return generate_text(prompt)

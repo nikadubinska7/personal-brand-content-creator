@@ -4,8 +4,10 @@ try:
     from .content_pipeline import (
         build_content_generation_prompt,
         build_idea_generation_prompt,
+        build_uniqueness_comparison_prompt,
         generate_content,
         generate_post_ideas,
+        generate_uniqueness_comparison,
     )
     from .document_processor import DocumentProcessingError
     from .knowledge_base import load_knowledge_base
@@ -17,8 +19,10 @@ except ImportError:
     from content_pipeline import (
         build_content_generation_prompt,
         build_idea_generation_prompt,
+        build_uniqueness_comparison_prompt,
         generate_content,
         generate_post_ideas,
+        generate_uniqueness_comparison,
     )
     from document_processor import DocumentProcessingError
     from knowledge_base import load_knowledge_base
@@ -78,6 +82,19 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Save generated carousel or listicle content as PDF in outputs/.",
     )
+    parser.add_argument(
+        "--generic-output",
+        help="Generic baseline output to compare against app output.",
+    )
+    parser.add_argument(
+        "--app-output",
+        help="App-generated output to compare against the generic baseline.",
+    )
+    parser.add_argument(
+        "--generate-uniqueness",
+        action="store_true",
+        help="Call the OpenAI API to generate uniqueness comparison evidence.",
+    )
     return parser.parse_args()
 
 
@@ -117,6 +134,56 @@ def main() -> None:
 
     print("\nIdea generation prompt preview:")
     print(build_preview(idea_prompt))
+
+    if args.generic_output or args.app_output or args.generate_uniqueness:
+        if not args.generic_output or not args.app_output:
+            print(
+                "\nUniqueness comparison skipped. Provide both "
+                "--generic-output and --app-output."
+            )
+            raise SystemExit(1)
+
+        try:
+            uniqueness_prompt = build_uniqueness_comparison_prompt(
+                knowledge_base=knowledge_base,
+                generic_output=args.generic_output,
+                app_output=args.app_output,
+            )
+        except (PromptTemplateError, ValueError) as error:
+            print(f"\nUniqueness prompt error: {error}")
+            raise SystemExit(1) from error
+
+        print("\nUniqueness comparison prompt preview:")
+        print(build_preview(uniqueness_prompt))
+
+        if args.generate_uniqueness:
+            try:
+                comparison = generate_uniqueness_comparison(
+                    knowledge_base=knowledge_base,
+                    generic_output=args.generic_output,
+                    app_output=args.app_output,
+                )
+            except LLMIntegrationError as error:
+                print(f"\nUniqueness comparison error: {error}")
+                raise SystemExit(1) from error
+
+            print("\nUniqueness comparison:")
+            print(comparison)
+
+            if args.save_output:
+                try:
+                    file_path = save_markdown_output(
+                        content=comparison,
+                        output_type="uniqueness-comparison",
+                    )
+                except OutputSaveError as error:
+                    print(f"\nOutput save error: {error}")
+                    raise SystemExit(1) from error
+                print(f"\nSaved output: {file_path}")
+            return
+
+        print("\nUniqueness generation skipped. Add --generate-uniqueness.")
+        return
 
     if args.format or args.idea or args.generate_content:
         if not args.format or not args.idea:
