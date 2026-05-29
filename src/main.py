@@ -1,12 +1,16 @@
+import argparse
+
 try:
-    from .content_pipeline import build_idea_generation_prompt
+    from .content_pipeline import build_idea_generation_prompt, generate_post_ideas
     from .document_processor import DocumentProcessingError
     from .knowledge_base import load_knowledge_base
+    from .llm_integration import LLMIntegrationError
     from .prompt_templates import PromptTemplateError
 except ImportError:
-    from content_pipeline import build_idea_generation_prompt
+    from content_pipeline import build_idea_generation_prompt, generate_post_ideas
     from document_processor import DocumentProcessingError
     from knowledge_base import load_knowledge_base
+    from llm_integration import LLMIntegrationError
     from prompt_templates import PromptTemplateError
 
 
@@ -27,7 +31,21 @@ def print_file_names(title: str, file_names: list[str]) -> None:
         print(f"  - {file_name}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Check the knowledge base and optionally generate post ideas."
+    )
+    parser.add_argument(
+        "--generate-ideas",
+        action="store_true",
+        help="Call the OpenAI API to generate 5 LinkedIn post ideas.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+
     print("Personal Brand Content Creator - Knowledge Base Check")
     print("-" * 55)
 
@@ -61,6 +79,19 @@ def main() -> None:
 
     print("\nIdea generation prompt preview:")
     print(build_preview(idea_prompt))
+
+    if not args.generate_ideas:
+        print("\nIdea generation skipped. Run with --generate-ideas to call OpenAI.")
+        return
+
+    try:
+        ideas = generate_post_ideas(knowledge_base)
+    except LLMIntegrationError as error:
+        print(f"\nIdea generation error: {error}")
+        raise SystemExit(1) from error
+
+    print("\nGenerated LinkedIn post ideas:")
+    print(ideas)
 
 
 if __name__ == "__main__":

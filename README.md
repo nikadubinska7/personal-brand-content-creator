@@ -19,3 +19,14 @@ The command loads markdown files from:
 It prints the number of files loaded, the file names, and a short preview of the
 combined context. It also builds a reusable idea-generation prompt preview from
 the markdown context. This step does not call the OpenAI API.
+
+## Generate Ideas
+
+To generate 5 LinkedIn post ideas, add `OPENAI_API_KEY` to `.env` and run:
+
+```bash
+python src/main.py --generate-ideas
+```
+
+You can optionally set `LLM_MODEL` in `.env`. If not set, the app uses
+`gpt-4o-mini`.
