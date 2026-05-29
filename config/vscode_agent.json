@@ -1,0 +1,42 @@
+{
+  "project_name": "Personal Brand Content Creator",
+  "agent_role": "Python development assistant",
+  "primary_instructions": [
+    "Follow AGENTS.md and Rules.md.",
+    "Build the MVP before optional features.",
+    "Keep the app local, simple, and demo-ready.",
+    "Use Python, Streamlit, markdown files, and OpenAI API.",
+    "Do not add vector search or full RAG before the markdown-based MVP works.",
+    "Do not hardcode API keys.",
+    "Do not make unsupported consulting claims in generated content.",
+    "Update README.md when setup or usage changes."
+  ],
+  "allowed_actions": [
+    "create Python modules",
+    "refactor code",
+    "create prompt templates",
+    "add error handling",
+    "write README sections",
+    "suggest tests",
+    "debug runtime errors"
+  ],
+  "restricted_actions": [
+    "commit secrets",
+    "delete knowledge base files",
+    "change project scope without updating PROJECT_REQUIREMENTS.md",
+    "add LinkedIn auto-posting",
+    "add authentication",
+    "add cloud deployment",
+    "add vector database before MVP completion"
+  ],
+  "mvp_order": [
+    "document_processor.py",
+    "knowledge_base.py",
+    "prompt_templates.py",
+    "llm_integration.py",
+    "content_pipeline.py",
+    "app.py",
+    "pdf_generator.py",
+    "README.md"
+  ]
+}
