@@ -47,3 +47,15 @@ To generate the selected content with OpenAI, add `--generate-content`:
 ```bash
 python src/main.py --format carousel --idea "AI can support logistics exception management" --generate-content
 ```
+
+## Streamlit App
+
+Run the local app from the project root:
+
+```bash
+streamlit run src/app.py
+```
+
+The app loads both knowledge bases, can generate 5 ideas, lets you paste a
+selected idea, choose `text`, `carousel`, or `listicle`, and generate copy-ready
+content for review.
