@@ -1,4 +1,8 @@
+from html import escape
+from json import dumps
+
 import streamlit as st
+import streamlit.components.v1 as components
 
 try:
     from .content_pipeline import (
@@ -60,6 +64,42 @@ def render_post_preview(content: str) -> None:
     st.markdown(content.replace("\n", "  \n"))
 
 
+def render_copy_button(content: str) -> None:
+    disabled = "disabled" if not content.strip() else ""
+    escaped_content = dumps(content)
+    components.html(
+        f"""
+        <button
+            {disabled}
+            id="copy-post-button"
+            style="
+                width: 140px;
+                padding: 0.65rem 0.9rem;
+                border: 1px solid #d0d5dd;
+                border-radius: 0.45rem;
+                background: #ffffff;
+                color: #1f2937;
+                font: 600 0.95rem system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                cursor: pointer;
+            "
+        >
+            Copy post
+        </button>
+        <span id="copy-post-status" style="margin-left: 0.75rem; color: #667085; font: 0.9rem system-ui;"></span>
+        <script>
+            const button = document.getElementById("copy-post-button");
+            const status = document.getElementById("copy-post-status");
+            button?.addEventListener("click", async () => {{
+                await navigator.clipboard.writeText({escaped_content});
+                status.textContent = "Copied";
+                setTimeout(() => status.textContent = "", 1800);
+            }});
+        </script>
+        """,
+        height=48,
+    )
+
+
 def parse_markdown_table(markdown_text: str) -> list[dict[str, str]]:
     table_lines = [
         line.strip()
@@ -81,7 +121,71 @@ def parse_markdown_table(markdown_text: str) -> list[dict[str, str]]:
     return rows
 
 
-@st.dialog("Uniqueness Evidence")
+def render_comparison_table(rows: list[dict[str, str]]) -> None:
+    if not rows:
+        return
+
+    headers = list(rows[0].keys())
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = ""
+    for row in rows:
+        row_html += "<tr>"
+        for header in headers:
+            row_html += f"<td>{escape(row.get(header, ''))}</td>"
+        row_html += "</tr>"
+
+    st.markdown(
+        f"""
+        <style>
+            .comparison-table-wrapper {{
+                max-height: 520px;
+                overflow: auto;
+                border: 1px solid #e4e7ec;
+                border-radius: 8px;
+            }}
+            .comparison-table {{
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 0.82rem;
+                line-height: 1.35;
+            }}
+            .comparison-table th {{
+                position: sticky;
+                top: 0;
+                background: #f8fafc;
+                z-index: 1;
+                text-align: left;
+                font-weight: 700;
+                color: #344054;
+            }}
+            .comparison-table th,
+            .comparison-table td {{
+                border-bottom: 1px solid #e4e7ec;
+                border-right: 1px solid #e4e7ec;
+                padding: 0.55rem;
+                vertical-align: top;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }}
+            .comparison-table th:first-child,
+            .comparison-table td:first-child {{
+                width: 15%;
+                font-weight: 650;
+            }}
+        </style>
+        <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+                <thead><tr>{header_html}</tr></thead>
+                <tbody>{row_html}</tbody>
+            </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+@st.dialog("Uniqueness Evidence", width="large")
 def show_uniqueness_dialog(knowledge_base: KnowledgeBase) -> None:
     st.caption("Compare a generic baseline with the current app-generated output.")
     st.text_area(
@@ -117,7 +221,7 @@ def show_uniqueness_dialog(knowledge_base: KnowledgeBase) -> None:
 
     comparison_rows = parse_markdown_table(st.session_state.uniqueness_comparison)
     if comparison_rows:
-        st.table(comparison_rows)
+        render_comparison_table(comparison_rows)
     elif st.session_state.uniqueness_comparison:
         st.warning("The comparison did not include a readable table.")
 
@@ -265,12 +369,7 @@ def main() -> None:
         with st.container(border=True):
             render_post_preview(st.session_state.generated_content)
 
-        st.text_area(
-            "Copy-ready text",
-            height=720,
-            placeholder="Generated content will appear here.",
-            key="generated_content",
-        )
+        render_copy_button(st.session_state.generated_content)
 
 
 if __name__ == "__main__":

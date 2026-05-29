@@ -30,9 +30,9 @@ Formatting rules:
 - Do not use horizontal separators such as ---.
 - Use clear labels such as "Caption:", "Carousel title:", and "Slide 1:".
 - Use natural line breaks and short bullet points.
-- Use relevant symbols or emojis where useful, such as 📦, 📊, ⚙️, 🔎, ✅,
-  ⚠️, 💡, or →.
-- Keep emojis purposeful and not excessive.
+- Use symbols/emojis only when they genuinely match the topic. Use 0 to 3 total.
+- Prefer plain bullets and arrows. Use emojis only when they directly support
+  meaning, such as 📦 for inventory/logistics, ⚠️ for risk, or 📊 for data.
 
 Structure:
 
