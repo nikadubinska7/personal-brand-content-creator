@@ -81,7 +81,7 @@ streamlit run src/app.py
 ```
 
 The app loads both knowledge bases, can generate 5 ideas, lets you paste a
-selected idea, choose `text`, `carousel`, or `listicle`, and generate copy-ready
-content for review. Generated content can be saved as markdown in `outputs/`,
-and carousel/listicle content can also be exported as PDF. The app also supports
-a basic uniqueness comparison between generic output and app-generated output.
+selected idea from radio buttons, choose `text`, `carousel`, or `listicle`, and
+generate copy-ready content for review. Generated content can be saved as
+markdown in `outputs/`. The app also supports a uniqueness comparison dialog
+between generic output and app-generated output.

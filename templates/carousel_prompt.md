@@ -21,7 +21,20 @@ credibility level. Use the secondary context only as supporting business context
 
 Create carousel content that can later be exported to PDF.
 
-Return:
+Return only clean copy-paste-ready content.
+
+Formatting rules:
+
+- Do not use markdown headings such as #, ##, ###, or ####.
+- Do not use bold markdown such as **text**.
+- Do not use horizontal separators such as ---.
+- Use clear labels such as "Caption:", "Carousel title:", and "Slide 1:".
+- Use natural line breaks and short bullet points.
+- Use relevant symbols or emojis where useful, such as 📦, 📊, ⚙️, 🔎, ✅,
+  ⚠️, or →.
+- Keep emojis purposeful and not excessive.
+
+Structure:
 
 1. A LinkedIn caption with 5 to 7 relevant hashtags.
 2. A carousel title.

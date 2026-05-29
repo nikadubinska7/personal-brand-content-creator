@@ -1,3 +1,4 @@
+from re import split
 from typing import Literal
 
 try:
@@ -37,6 +38,30 @@ def generate_post_ideas(knowledge_base: KnowledgeBase) -> str:
     """Generate 5 LinkedIn post ideas from the loaded knowledge base."""
     prompt = build_idea_generation_prompt(knowledge_base)
     return generate_text(prompt)
+
+
+def parse_generated_ideas(generated_ideas: str, limit: int = 5) -> list[str]:
+    """Split generated idea text into selectable idea blocks."""
+    if not generated_ideas.strip():
+        return []
+
+    blocks = [
+        block.strip(" \n-")
+        for block in split(
+            r"(?m)(?=^\s*(?:\d+[\.\)]|(?:Post\s+)?Idea\s+\d+[:\.\)]))",
+            generated_ideas,
+        )
+        if block.strip()
+    ]
+
+    if len(blocks) < 2:
+        blocks = [
+            line.strip(" \n-")
+            for line in generated_ideas.splitlines()
+            if line.strip()
+        ]
+
+    return blocks[:limit]
 
 
 def build_content_generation_prompt(

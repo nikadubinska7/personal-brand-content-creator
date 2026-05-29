@@ -30,10 +30,18 @@ Create concise uniqueness evidence for project documentation.
 Return:
 
 1. A short summary of the comparison.
-2. 3 to 5 specific differences between the generic output and the app output.
-3. A short assessment of whether the app output better matches the author's
-   current positioning.
-4. Any overclaiming risks found in either output.
-5. A final recommendation for what to improve before publishing.
+2. A markdown table comparing the outputs using exactly these metrics:
+   - Voice alignment
+   - Supply chain specificity
+   - Practical AI angle
+   - Personal positioning fit
+   - Business relevance
+3. A short note on overclaiming risks found in either output.
+4. A final recommendation for what to improve before publishing.
+
+Use this table structure:
+
+| Metric | Generic output | App output | Stronger output | Notes |
+|---|---|---|---|---|
 
 Keep the analysis practical, specific, and business-focused.

@@ -21,6 +21,17 @@ credibility level. Use the secondary context only as supporting business context
 
 Write one LinkedIn-ready text post.
 
+Return only the final copy-paste-ready LinkedIn post text.
+
+Formatting rules:
+
+- Do not use markdown headings such as #, ##, or ###.
+- Do not use bold markdown such as **text**.
+- Use natural line breaks and short paragraphs.
+- Use relevant symbols or emojis where they add clarity, such as 🔎, ⚙️, 📦,
+  📊, ✅, ⚠️, or →.
+- Keep emojis purposeful and not excessive.
+
 The post must include:
 
 - A strong opening line
@@ -31,9 +42,10 @@ The post must include:
 - A realistic reflection or soft question
 - 5 to 7 relevant hashtags
 
-Also include a short image prompt after the post under this heading:
+After the hashtags, include:
 
-## Image Prompt
+Image prompt:
+[one short practical image prompt]
 
 ## Guardrails
 
