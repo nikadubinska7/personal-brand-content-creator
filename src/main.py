@@ -1,43 +1,54 @@
-from pathlib import Path
-from dotenv import load_dotenv
-import os
+try:
+    from .document_processor import DocumentProcessingError
+    from .knowledge_base import load_knowledge_base
+except ImportError:
+    from document_processor import DocumentProcessingError
+    from knowledge_base import load_knowledge_base
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PRIMARY_KB = PROJECT_ROOT / "knowledge_base" / "primary"
-SECONDARY_KB = PROJECT_ROOT / "knowledge_base" / "secondary"
 
-def list_markdown_files(folder: Path) -> list[Path]:
-    if not folder.exists():
-        raise FileNotFoundError(f"Folder not found: {folder}")
-    return sorted(folder.glob("*.md"))
+PREVIEW_LENGTH = 500
 
-def main():
-    load_dotenv()
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+def build_preview(text: str, max_length: int = PREVIEW_LENGTH) -> str:
+    """Return a compact preview that is readable in the terminal."""
+    compact_text = " ".join(text.split())
+    if len(compact_text) <= max_length:
+        return compact_text
+    return f"{compact_text[:max_length].rstrip()}..."
 
-    print("Personal Brand Content Creator — Setup Test")
-    print("-" * 50)
-    print(f"Project root: {PROJECT_ROOT}")
-    print(f"Model: {model}")
-    print(f"API key loaded: {'Yes' if api_key and api_key != 'your_api_key_here' else 'No / placeholder only'}")
 
-    primary_files = list_markdown_files(PRIMARY_KB)
-    secondary_files = list_markdown_files(SECONDARY_KB)
+def print_file_names(title: str, file_names: list[str]) -> None:
+    print(f"\n{title}")
+    for file_name in file_names:
+        print(f"  - {file_name}")
 
-    print(f"\nPrimary KB files found: {len(primary_files)}")
-    for file in primary_files:
-        print(f"  - {file.name}")
 
-    print(f"\nSecondary KB files found: {len(secondary_files)}")
-    for file in secondary_files:
-        print(f"  - {file.name}")
+def main() -> None:
+    print("Personal Brand Content Creator - Knowledge Base Check")
+    print("-" * 55)
 
-    if len(primary_files) == 5 and len(secondary_files) == 4:
-        print("\nSetup test passed.")
-    else:
-        print("\nSetup test warning: expected 5 primary files and 4 secondary files.")
+    try:
+        knowledge_base = load_knowledge_base()
+    except DocumentProcessingError as error:
+        print(f"Error: {error}")
+        raise SystemExit(1) from error
+
+    primary_file_names = [
+        document.file_name for document in knowledge_base.primary_documents
+    ]
+    secondary_file_names = [
+        document.file_name for document in knowledge_base.secondary_documents
+    ]
+
+    print(f"Primary files loaded: {len(primary_file_names)}")
+    print(f"Secondary files loaded: {len(secondary_file_names)}")
+
+    print_file_names("Primary file names:", primary_file_names)
+    print_file_names("Secondary file names:", secondary_file_names)
+
+    print("\nCombined context preview:")
+    print(build_preview(knowledge_base.combined_context))
+
 
 if __name__ == "__main__":
     main()
