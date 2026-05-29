@@ -10,6 +10,7 @@ try:
     from .document_processor import DocumentProcessingError
     from .knowledge_base import load_knowledge_base
     from .llm_integration import LLMIntegrationError
+    from .output_saver import OutputSaveError, save_markdown_output
     from .prompt_templates import PromptTemplateError
 except ImportError:
     from content_pipeline import (
@@ -21,6 +22,7 @@ except ImportError:
     from document_processor import DocumentProcessingError
     from knowledge_base import load_knowledge_base
     from llm_integration import LLMIntegrationError
+    from output_saver import OutputSaveError, save_markdown_output
     from prompt_templates import PromptTemplateError
 
 
@@ -63,6 +65,11 @@ def parse_args() -> argparse.Namespace:
         "--generate-content",
         action="store_true",
         help="Call the OpenAI API to generate content for --idea and --format.",
+    )
+    parser.add_argument(
+        "--save-output",
+        action="store_true",
+        help="Save generated ideas or content as markdown in outputs/.",
     )
     return parser.parse_args()
 
@@ -135,6 +142,18 @@ def main() -> None:
 
             print(f"\nGenerated {args.format} content:")
             print(content)
+
+            if args.save_output:
+                try:
+                    file_path = save_markdown_output(
+                        content=content,
+                        output_type=args.format,
+                        selected_idea=args.idea,
+                    )
+                except OutputSaveError as error:
+                    print(f"\nOutput save error: {error}")
+                    raise SystemExit(1) from error
+                print(f"\nSaved output: {file_path}")
             return
 
         print("\nContent generation skipped. Add --generate-content to call OpenAI.")
@@ -152,6 +171,17 @@ def main() -> None:
 
     print("\nGenerated LinkedIn post ideas:")
     print(ideas)
+
+    if args.save_output:
+        try:
+            file_path = save_markdown_output(
+                content=ideas,
+                output_type="ideas",
+            )
+        except OutputSaveError as error:
+            print(f"\nOutput save error: {error}")
+            raise SystemExit(1) from error
+        print(f"\nSaved output: {file_path}")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ try:
     from .document_processor import DocumentProcessingError
     from .knowledge_base import KnowledgeBase, load_knowledge_base
     from .llm_integration import LLMIntegrationError
+    from .output_saver import OutputSaveError, save_markdown_output
     from .prompt_templates import PromptTemplateError
 except ImportError:
     from content_pipeline import (
@@ -19,6 +20,7 @@ except ImportError:
     from document_processor import DocumentProcessingError
     from knowledge_base import KnowledgeBase, load_knowledge_base
     from llm_integration import LLMIntegrationError
+    from output_saver import OutputSaveError, save_markdown_output
     from prompt_templates import PromptTemplateError
 
 
@@ -68,10 +70,13 @@ def main() -> None:
         st.session_state.selected_idea = ""
     if "generated_content" not in st.session_state:
         st.session_state.generated_content = ""
+    if "saved_output_path" not in st.session_state:
+        st.session_state.saved_output_path = ""
 
     if st.button("Generate 5 Ideas", type="primary"):
         try:
             st.session_state.generated_ideas = generate_post_ideas(knowledge_base)
+            st.session_state.saved_output_path = ""
         except LLMIntegrationError as error:
             st.error(str(error))
 
@@ -123,6 +128,7 @@ def main() -> None:
             st.error(str(error))
         else:
             st.session_state.generated_content = content
+            st.session_state.saved_output_path = ""
 
     st.subheader("3. Copy-Ready Output")
     st.text_area(
@@ -131,6 +137,21 @@ def main() -> None:
         placeholder="Generated content will appear here.",
         key="generated_content",
     )
+
+    if st.button("Save Output"):
+        try:
+            file_path = save_markdown_output(
+                content=st.session_state.generated_content,
+                output_type=content_format,
+                selected_idea=selected_idea,
+            )
+        except OutputSaveError as error:
+            st.error(str(error))
+        else:
+            st.session_state.saved_output_path = str(file_path)
+
+    if st.session_state.saved_output_path:
+        st.success(f"Saved output: {st.session_state.saved_output_path}")
 
 
 if __name__ == "__main__":
