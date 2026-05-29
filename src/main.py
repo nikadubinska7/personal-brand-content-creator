@@ -11,6 +11,7 @@ try:
     from .knowledge_base import load_knowledge_base
     from .llm_integration import LLMIntegrationError
     from .output_saver import OutputSaveError, save_markdown_output
+    from .pdf_generator import PDFGenerationError, save_pdf_output
     from .prompt_templates import PromptTemplateError
 except ImportError:
     from content_pipeline import (
@@ -23,6 +24,7 @@ except ImportError:
     from knowledge_base import load_knowledge_base
     from llm_integration import LLMIntegrationError
     from output_saver import OutputSaveError, save_markdown_output
+    from pdf_generator import PDFGenerationError, save_pdf_output
     from prompt_templates import PromptTemplateError
 
 
@@ -70,6 +72,11 @@ def parse_args() -> argparse.Namespace:
         "--save-output",
         action="store_true",
         help="Save generated ideas or content as markdown in outputs/.",
+    )
+    parser.add_argument(
+        "--save-pdf",
+        action="store_true",
+        help="Save generated carousel or listicle content as PDF in outputs/.",
     )
     return parser.parse_args()
 
@@ -154,6 +161,18 @@ def main() -> None:
                     print(f"\nOutput save error: {error}")
                     raise SystemExit(1) from error
                 print(f"\nSaved output: {file_path}")
+
+            if args.save_pdf:
+                try:
+                    pdf_path = save_pdf_output(
+                        content=content,
+                        output_type=args.format,
+                        selected_idea=args.idea,
+                    )
+                except PDFGenerationError as error:
+                    print(f"\nPDF export error: {error}")
+                    raise SystemExit(1) from error
+                print(f"\nSaved PDF: {pdf_path}")
             return
 
         print("\nContent generation skipped. Add --generate-content to call OpenAI.")

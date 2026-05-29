@@ -55,6 +55,12 @@ Add `--save-output` to save generated ideas or generated content as markdown in
 python src/main.py --generate-ideas --save-output
 ```
 
+For carousel or listicle content, add `--save-pdf` to export a readable PDF:
+
+```bash
+python src/main.py --format listicle --idea "AI can support weekly reporting" --generate-content --save-output --save-pdf
+```
+
 ## Streamlit App
 
 Run the local app from the project root:
@@ -65,4 +71,5 @@ streamlit run src/app.py
 
 The app loads both knowledge bases, can generate 5 ideas, lets you paste a
 selected idea, choose `text`, `carousel`, or `listicle`, and generate copy-ready
-content for review. Generated content can be saved as markdown in `outputs/`.
+content for review. Generated content can be saved as markdown in `outputs/`,
+and carousel/listicle content can also be exported as PDF.

@@ -10,6 +10,7 @@ try:
     from .knowledge_base import KnowledgeBase, load_knowledge_base
     from .llm_integration import LLMIntegrationError
     from .output_saver import OutputSaveError, save_markdown_output
+    from .pdf_generator import PDFGenerationError, save_pdf_output
     from .prompt_templates import PromptTemplateError
 except ImportError:
     from content_pipeline import (
@@ -21,6 +22,7 @@ except ImportError:
     from knowledge_base import KnowledgeBase, load_knowledge_base
     from llm_integration import LLMIntegrationError
     from output_saver import OutputSaveError, save_markdown_output
+    from pdf_generator import PDFGenerationError, save_pdf_output
     from prompt_templates import PromptTemplateError
 
 
@@ -72,11 +74,14 @@ def main() -> None:
         st.session_state.generated_content = ""
     if "saved_output_path" not in st.session_state:
         st.session_state.saved_output_path = ""
+    if "saved_pdf_path" not in st.session_state:
+        st.session_state.saved_pdf_path = ""
 
     if st.button("Generate 5 Ideas", type="primary"):
         try:
             st.session_state.generated_ideas = generate_post_ideas(knowledge_base)
             st.session_state.saved_output_path = ""
+            st.session_state.saved_pdf_path = ""
         except LLMIntegrationError as error:
             st.error(str(error))
 
@@ -129,6 +134,7 @@ def main() -> None:
         else:
             st.session_state.generated_content = content
             st.session_state.saved_output_path = ""
+            st.session_state.saved_pdf_path = ""
 
     st.subheader("3. Copy-Ready Output")
     st.text_area(
@@ -138,7 +144,13 @@ def main() -> None:
         key="generated_content",
     )
 
-    if st.button("Save Output"):
+    col_save_md, col_save_pdf = st.columns(2)
+    with col_save_md:
+        save_output_clicked = st.button("Save Markdown")
+    with col_save_pdf:
+        save_pdf_clicked = st.button("Save PDF")
+
+    if save_output_clicked:
         try:
             file_path = save_markdown_output(
                 content=st.session_state.generated_content,
@@ -152,6 +164,21 @@ def main() -> None:
 
     if st.session_state.saved_output_path:
         st.success(f"Saved output: {st.session_state.saved_output_path}")
+
+    if save_pdf_clicked:
+        try:
+            pdf_path = save_pdf_output(
+                content=st.session_state.generated_content,
+                output_type=content_format,
+                selected_idea=selected_idea,
+            )
+        except PDFGenerationError as error:
+            st.error(str(error))
+        else:
+            st.session_state.saved_pdf_path = str(pdf_path)
+
+    if st.session_state.saved_pdf_path:
+        st.success(f"Saved PDF: {st.session_state.saved_pdf_path}")
 
 
 if __name__ == "__main__":
