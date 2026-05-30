@@ -21,6 +21,20 @@ CONTENT_TEMPLATES: dict[ContentFormat, str] = {
     "listicle": "listicle_prompt.md",
 }
 
+VISUAL_MARKERS = ("→", "•", "✅", "⚠️", "📌", "🔍", "💡", "📊", "🚚", "⏱️", "📦")
+SECTION_MARKERS = {
+    "the problem:": "⚠️",
+    "problem:": "⚠️",
+    "why it matters:": "📊",
+    "where ai could help:": "💡",
+    "what ai can do:": "💡",
+    "what i am exploring:": "🔍",
+    "example:": "📌",
+    "takeaway:": "✅",
+    "practical takeaway:": "✅",
+    "what this made me think:": "💡",
+}
+
 
 def build_idea_generation_prompt(knowledge_base: KnowledgeBase) -> str:
     """Build the prompt used to generate LinkedIn content ideas."""
@@ -105,6 +119,74 @@ def build_content_generation_prompt(
     )
 
 
+def count_visual_markers(content: str) -> int:
+    """Count visible structure markers in generated content."""
+    return sum(content.count(marker) for marker in VISUAL_MARKERS)
+
+
+def add_section_marker(line: str) -> str:
+    """Add a relevant marker to a known section label when missing."""
+    stripped_line = line.strip()
+    if stripped_line.startswith(VISUAL_MARKERS):
+        return line
+
+    lower_line = stripped_line.lower()
+    for section_label, marker in SECTION_MARKERS.items():
+        if lower_line.startswith(section_label):
+            indentation = line[: len(line) - len(line.lstrip())]
+            return f"{indentation}{marker} {stripped_line}"
+
+    return line
+
+
+def format_linkedin_post_output(content: str, content_format: ContentFormat) -> str:
+    """Lightly add scan-friendly symbols when the model returns plain text."""
+    if not content.strip():
+        return content
+
+    formatted_lines: list[str] = []
+    bullet_markers_added = 0
+    for line in [add_section_marker(line) for line in content.strip().splitlines()]:
+        stripped_line = line.lstrip()
+        indentation = line[: len(line) - len(stripped_line)]
+
+        if stripped_line.startswith(("- ", "* ")):
+            bullet_body = stripped_line[2:].strip()
+            if bullet_body.lower().startswith(("takeaway:", "practical takeaway:")):
+                formatted_lines.append(f"{indentation}✅ {bullet_body}")
+                bullet_markers_added += 1
+                continue
+
+            if bullet_markers_added < 4:
+                formatted_lines.append(f"{indentation}→ {bullet_body}")
+                bullet_markers_added += 1
+                continue
+
+        if content_format == "listicle" and stripped_line.startswith("→ "):
+            bullet_markers_added += 1
+
+        formatted_lines.append(line)
+
+    formatted_content = "\n".join(formatted_lines).strip()
+    if count_visual_markers(formatted_content) >= 4:
+        return formatted_content
+
+    if content_format == "text":
+        return f"🔍 {formatted_content}"
+    if content_format == "carousel":
+        if "Caption:\n" in formatted_content:
+            return formatted_content.replace("Caption:\n", "Caption:\n🔍 ", 1)
+        if "Caption:" in formatted_content:
+            return formatted_content.replace("Caption:", "Caption:\n🔍", 1)
+        return f"🔍 {formatted_content}"
+
+    if "Caption:\n" in formatted_content:
+        return formatted_content.replace("Caption:\n", "Caption:\n📌 ", 1)
+    if "Caption:" in formatted_content:
+        return formatted_content.replace("Caption:", "Caption:\n📌", 1)
+    return f"📌 {formatted_content}"
+
+
 def generate_content(
     knowledge_base: KnowledgeBase,
     selected_idea: str,
@@ -116,7 +198,7 @@ def generate_content(
         selected_idea=selected_idea,
         content_format=content_format,
     )
-    return generate_text(prompt)
+    return format_linkedin_post_output(generate_text(prompt), content_format)
 
 
 def build_uniqueness_comparison_prompt(

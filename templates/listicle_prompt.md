@@ -28,9 +28,13 @@ Formatting rules:
 - Do not use markdown headings such as #, ##, or ###.
 - Do not use bold markdown such as **text**.
 - Use natural line breaks and short paragraphs.
-- Use symbols/emojis only when they genuinely match the topic. Use 0 to 3 total.
-- Prefer plain bullets and arrows. Use emojis only when they directly support
-  meaning, such as 📦 for inventory/logistics, ⚠️ for risk, or 📊 for data.
+- Use 4 to 7 relevant symbols or emojis across the caption and list.
+- Use symbols as section markers and bullet markers, not as decoration.
+- Prefer practical business symbols such as →, •, ✅, ⚠️, 📌, 🔍, 💡, 📊, 🚚,
+  ⏱️, and 📦.
+- Use emojis only when they directly support meaning, such as 📦 for
+  inventory/logistics, ⚠️ for risk, 📊 for data, 🔍 for analysis, or 💡 for
+  reflection.
 
 Structure:
 
