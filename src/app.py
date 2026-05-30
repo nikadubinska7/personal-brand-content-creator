@@ -1,5 +1,6 @@
 from html import escape
 from json import dumps
+from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -18,6 +19,7 @@ try:
     from .knowledge_base import KnowledgeBase, load_knowledge_base
     from .llm_integration import LLMIntegrationError
     from .output_saver import OutputSaveError, save_markdown_output
+    from .pdf_generator import PDF_FORMATS, PDFGenerationError, save_pdf_output
     from .prompt_templates import PromptTemplateError
 except ImportError:
     from content_pipeline import (
@@ -33,6 +35,7 @@ except ImportError:
     from knowledge_base import KnowledgeBase, load_knowledge_base
     from llm_integration import LLMIntegrationError
     from output_saver import OutputSaveError, save_markdown_output
+    from pdf_generator import PDF_FORMATS, PDFGenerationError, save_pdf_output
     from prompt_templates import PromptTemplateError
 
 
@@ -268,6 +271,8 @@ def main() -> None:
         st.session_state.generated_content = ""
     if "saved_output_path" not in st.session_state:
         st.session_state.saved_output_path = ""
+    if "saved_pdf_path" not in st.session_state:
+        st.session_state.saved_pdf_path = ""
     if "generic_output" not in st.session_state:
         st.session_state.generic_output = ""
     if "uniqueness_comparison" not in st.session_state:
@@ -286,6 +291,7 @@ def main() -> None:
                 st.session_state.generated_ideas = generate_post_ideas(knowledge_base)
                 st.session_state.selected_idea = ""
                 st.session_state.saved_output_path = ""
+                st.session_state.saved_pdf_path = ""
             except LLMIntegrationError as error:
                 st.error(str(error))
 
@@ -344,6 +350,7 @@ def main() -> None:
             else:
                 st.session_state.generated_content = content
                 st.session_state.saved_output_path = ""
+                st.session_state.saved_pdf_path = ""
 
         st.divider()
         if st.button("Save Markdown", use_container_width=True):
@@ -360,6 +367,32 @@ def main() -> None:
 
         if st.session_state.saved_output_path:
             st.success(f"Saved output: {st.session_state.saved_output_path}")
+
+        if content_format in PDF_FORMATS:
+            if st.button("Export PDF", use_container_width=True):
+                try:
+                    pdf_path = save_pdf_output(
+                        content=st.session_state.generated_content,
+                        output_type=content_format,
+                        selected_idea=selected_idea,
+                    )
+                except PDFGenerationError as error:
+                    st.error(str(error))
+                else:
+                    st.session_state.saved_pdf_path = str(pdf_path)
+
+            if st.session_state.saved_pdf_path:
+                st.success(f"Saved PDF: {st.session_state.saved_pdf_path}")
+                with open(st.session_state.saved_pdf_path, "rb") as pdf_file:
+                    st.download_button(
+                        "Download PDF",
+                        data=pdf_file,
+                        file_name=Path(st.session_state.saved_pdf_path).name,
+                        mime="application/pdf",
+                        use_container_width=True,
+                    )
+        else:
+            st.caption("PDF export is available for carousel and listicle formats.")
 
         if st.button("Open Uniqueness Evidence", use_container_width=True):
             show_uniqueness_dialog(knowledge_base)
