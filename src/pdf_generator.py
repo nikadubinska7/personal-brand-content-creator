@@ -9,9 +9,9 @@ from reportlab.lib.units import inch
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
 
 try:
-    from .output_saver import OUTPUT_DIR, slugify
+    from .output_saver import PDF_OUTPUT_DIR, slugify
 except ImportError:
-    from output_saver import OUTPUT_DIR, slugify
+    from output_saver import PDF_OUTPUT_DIR, slugify
 
 
 PDF_FORMATS = {"carousel", "listicle"}
@@ -63,7 +63,7 @@ def save_pdf_output(
     content: str,
     output_type: str,
     selected_idea: str | None = None,
-    output_dir: Path = OUTPUT_DIR,
+    output_dir: Path = PDF_OUTPUT_DIR,
 ) -> Path:
     """Save generated carousel or listicle content as a readable PDF."""
     if output_type not in PDF_FORMATS:

@@ -49,13 +49,14 @@ python src/main.py --format carousel --idea "AI can support logistics exception 
 ```
 
 Add `--save-output` to save generated ideas or generated content as markdown in
-`outputs/`:
+`outputs/posts/`:
 
 ```bash
 python src/main.py --generate-ideas --save-output
 ```
 
-For carousel or listicle content, add `--save-pdf` to export a readable PDF:
+For carousel or listicle content, add `--save-pdf` to export a readable PDF in
+`outputs/pdfs/`:
 
 ```bash
 python src/main.py --format listicle --idea "AI can support weekly reporting" --generate-content --save-output --save-pdf
@@ -83,5 +84,6 @@ streamlit run src/app.py
 The app loads both knowledge bases, can generate 5 ideas, lets you paste a
 selected idea from radio buttons, choose `text`, `carousel`, or `listicle`, and
 generate copy-ready content for review. Generated content can be saved as
-markdown in `outputs/`. The app also supports a uniqueness comparison dialog
-between generic output and app-generated output.
+markdown in `outputs/posts/`, and PDFs are saved in `outputs/pdfs/`. The app
+also supports a uniqueness comparison dialog between generic output and
+app-generated output.

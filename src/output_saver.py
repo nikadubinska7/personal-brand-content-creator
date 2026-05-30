@@ -5,6 +5,9 @@ from re import sub
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
+POST_OUTPUT_DIR = OUTPUT_DIR / "posts"
+PDF_OUTPUT_DIR = OUTPUT_DIR / "pdfs"
+IMAGE_OUTPUT_DIR = OUTPUT_DIR / "images"
 
 
 class OutputSaveError(Exception):
@@ -27,9 +30,9 @@ def save_markdown_output(
     content: str,
     output_type: str,
     selected_idea: str | None = None,
-    output_dir: Path = OUTPUT_DIR,
+    output_dir: Path = POST_OUTPUT_DIR,
 ) -> Path:
-    """Save generated content as a markdown file in the outputs folder."""
+    """Save generated content as a markdown file in the posts output folder."""
     if not content.strip():
         raise OutputSaveError("Generated output is empty and was not saved.")
 
